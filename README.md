@@ -66,8 +66,3 @@ Works the same on Windows, macOS, and Linux:
 python -m pip install -r requirements.txt
 python run.py
 ```
-
-(On macOS/Linux use `python3` if `python` isn't available.)
-`python run.py` is equivalent to `python -m streamlit run planly.py`; using
-`python -m` avoids "streamlit is not recognized" errors on Windows when the
-`streamlit` command isn't on PATH.
