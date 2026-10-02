@@ -28,6 +28,7 @@ Planly/
 │
 ├── planly.py                  # Entry point (streamlit run planly.py)
 ├── planly_app.py              # PlanlyApp: single entry point to the app logic
+├── run.py                     # Cross-platform launcher (python run.py)
 │
 ├── model/                     # Data models
 │   ├── __init__.py
@@ -59,7 +60,14 @@ Planly/
 
 ## Running the App
 
+Works the same on Windows, macOS, and Linux:
+
 ```bash
-pip install -r requirements.txt
-streamlit run planly.py
+python -m pip install -r requirements.txt
+python run.py
 ```
+
+(On macOS/Linux use `python3` if `python` isn't available.)
+`python run.py` is equivalent to `python -m streamlit run planly.py`; using
+`python -m` avoids "streamlit is not recognized" errors on Windows when the
+`streamlit` command isn't on PATH.
