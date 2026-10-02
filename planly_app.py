@@ -3,8 +3,8 @@
 # Planly - Student Workload & Task Management System
 # =========================================================
 
-from backend.model import Task, Student
-from backend.services import WorkloadAnalyzer, StudyScheduler
+from model import Task, Student
+from services import WorkloadAnalyzer, StudyScheduler
 
 
 class PlanlyApp:

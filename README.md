@@ -26,34 +26,34 @@ Planly is a student workload and task management system designed to help student
 ```text
 Planly/
 │
-├── planly.py                      # Entry point: connects frontend to backend
+├── planly.py                  # Entry point (streamlit run planly.py)
+├── planly_app.py              # PlanlyApp: single entry point to the app logic
 │
-├── backend/                       # Pure Python logic (no Streamlit)
+├── model/                     # Data models
 │   ├── __init__.py
-│   ├── planly_app.py              # PlanlyApp: the backend's single entry point
-│   ├── model/
-│   │   ├── __init__.py
-│   │   ├── task.py
-│   │   └── student.py
-│   └── services/
-│       ├── __init__.py
-│       ├── workload_analyzer.py
-│       └── study_scheduler.py
+│   ├── task.py
+│   └── student.py
 │
-├── frontend/                      # Streamlit UI (talks to backend only via PlanlyApp)
+├── services/                  # Business logic (no Streamlit)
 │   ├── __init__.py
-│   ├── ui/
-│   │   ├── __init__.py
-│   │   ├── styles.py              # Pink aesthetic CSS
-│   │   └── sidebar.py             # Sidebar header & navigation
-│   └── views/
-│       ├── __init__.py            # PAGES: navigation label -> page renderer
-│       ├── dashboard.py
-│       ├── add_task.py
-│       ├── my_tasks.py
-│       ├── workload_balance.py
-│       └── study_schedule.py
+│   ├── workload_analyzer.py
+│   └── study_scheduler.py
 │
+├── ui/                        # Shared Streamlit UI pieces
+│   ├── __init__.py
+│   ├── styles.py              # Pink aesthetic CSS
+│   └── sidebar.py             # Sidebar header & navigation
+│
+├── views/                     # Streamlit pages
+│   ├── __init__.py            # PAGES: navigation label -> page renderer
+│   ├── dashboard.py
+│   ├── add_task.py
+│   ├── my_tasks.py
+│   ├── workload_balance.py
+│   └── study_schedule.py
+│
+├── requirements.txt
+├── .gitignore
 └── README.md
 ```
 

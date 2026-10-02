@@ -5,8 +5,9 @@
 
 import streamlit as st
 
-from backend import PlanlyApp
-from frontend import apply_styles, render_sidebar, PAGES
+from planly_app import PlanlyApp
+from ui import apply_styles, render_sidebar
+from views import PAGES
 
 
 # =========================================================
