@@ -26,16 +26,40 @@ Planly is a student workload and task management system designed to help student
 ```text
 Planly/
 │
-├── app.py
+├── planly.py                      # Entry point: connects frontend to backend
 │
-├── models/
+├── backend/                       # Pure Python logic (no Streamlit)
 │   ├── __init__.py
-│   ├── task.py
-│   └── student.py
+│   ├── planly_app.py              # PlanlyApp: the backend's single entry point
+│   ├── model/
+│   │   ├── __init__.py
+│   │   ├── task.py
+│   │   └── student.py
+│   └── services/
+│       ├── __init__.py
+│       ├── workload_analyzer.py
+│       └── study_scheduler.py
 │
-├── services/
+├── frontend/                      # Streamlit UI (talks to backend only via PlanlyApp)
 │   ├── __init__.py
-│   ├── workload_analyzer.py
-│   └── study_scheduler.py
+│   ├── ui/
+│   │   ├── __init__.py
+│   │   ├── styles.py              # Pink aesthetic CSS
+│   │   └── sidebar.py             # Sidebar header & navigation
+│   └── views/
+│       ├── __init__.py            # PAGES: navigation label -> page renderer
+│       ├── dashboard.py
+│       ├── add_task.py
+│       ├── my_tasks.py
+│       ├── workload_balance.py
+│       └── study_schedule.py
 │
 └── README.md
+```
+
+## Running the App
+
+```bash
+pip install -r requirements.txt
+streamlit run planly.py
+```
