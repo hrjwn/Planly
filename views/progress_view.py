@@ -12,7 +12,7 @@ from ui.components import html
 from ui.roadmap import roadmap_card_html
 from ui.charts import (
     ACCENT, INK, INK_MUTED, PRIORITY_COLORS,
-    bar_list, card, column_chart, inject_chart_styles, ring, stat_tile,
+    bar_list, card, column_chart, icon, inject_chart_styles, ring, stat_tile,
 )
 
 
@@ -104,10 +104,10 @@ def render_progress_view(student: Student):
     # ---------- Stat tiles ----------
     overdue = len(analysis["overdue_tasks"])
     tiles = [
-        stat_tile("Steps done", f"{steps_done}<span style='font-size: 0.95rem; color: {INK_MUTED}; font-weight: 600;'>/{len(all_steps)}</span>", "Across all tasks", "✅", "#F0FDF4"),
-        stat_tile("Overdue", overdue, "Needs catching up" if overdue else "Nothing overdue", "⏰", "#FEF2F2" if overdue else "#F0FDF4"),
-        stat_tile("Focus sessions", focus_summary["weekly_sessions"], "Last 7 days", "🎯", "#F5F0FF"),
-        stat_tile("Focus time", focus_summary["formatted_weekly_time"], "Last 7 days", "⏱️", "#FFF7ED"),
+        stat_tile("Steps done", f"{steps_done}<span style='font-size: 0.95rem; color: {INK_MUTED}; font-weight: 600;'>/{len(all_steps)}</span>", "Across all tasks", "task_alt", "#F0FDF4"),
+        stat_tile("Overdue", overdue, "Needs catching up" if overdue else "Nothing overdue", "alarm", "#FEF2F2" if overdue else "#F0FDF4"),
+        stat_tile("Focus sessions", focus_summary["weekly_sessions"], "Last 7 days", "target", "#F5F0FF"),
+        stat_tile("Focus time", focus_summary["formatted_weekly_time"], "Last 7 days", "timer", "#FFF7ED"),
     ]
     for col, tile in zip(st.columns(4, gap="small"), tiles):
         with col:
@@ -148,7 +148,7 @@ def render_progress_view(student: Student):
             ]
             body = bar_list(rows, colors=PRIORITY_COLORS)
         else:
-            body = f'<div style="font-size: 0.86rem; color: {INK_MUTED};">No pending tasks. Everything is done! 🎉</div>'
+            body = f'<div style="font-size: 0.86rem; color: {INK_MUTED};">No pending tasks. Everything is done! {icon("celebration")}</div>'
         html(card("Pending by Priority", "What's left on your plate", body))
 
     st.write("")
@@ -174,7 +174,7 @@ def render_progress_view(student: Student):
             body = (
                 f'<div style="height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; '
                 f'color: {INK_MUTED}; font-size: 0.86rem; text-align: center; background: #FFF7FA; border-radius: 12px;">'
-                f'<div style="font-size: 1.6rem;">🎯</div>No focus sessions in the last 7 days.<br>Start one from the Focus page.</div>'
+                f'<div>{icon("target", "1.6rem")}</div>No focus sessions in the last 7 days.<br>Start one from the Focus page.</div>'
             )
         html(card("Focus This Week", f"{FocusController.format_duration(week_total)} total over the last 7 days", body))
 
@@ -208,7 +208,7 @@ def render_progress_view(student: Student):
             tips = "".join(f'<li style="margin-bottom: 0.25rem;">{escape(tip)}</li>' for tip in general_tips[:3])
             body += (
                 f'<div style="background: #FFF7FA; border-radius: 12px; padding: 0.8rem 1rem; margin-top: 0.8rem;">'
-                f'<div class="pl-eyebrow" style="margin-bottom: 0.3rem;">💡 Pacing tips</div>'
+                f'<div class="pl-eyebrow" style="margin-bottom: 0.3rem;">{icon("lightbulb")} Pacing tips</div>'
                 f'<ul style="margin: 0; padding-left: 1.1rem; font-size: 0.8rem; color: {INK}; line-height: 1.55;">{tips}</ul></div>'
             )
         html(card("Study Plan", "Suggested pacing for your nearest deadlines", body))

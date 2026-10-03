@@ -112,10 +112,16 @@ def card(title: str, subtitle: str, body: str) -> str:
     return f'<div class="pl-card"><div class="pl-card-title">{title}</div>{sub}{body}</div>'
 
 
-def stat_tile(label: str, value, caption: str, icon: str, tint: str = TRACK) -> str:
+def icon(name: str, size: str = "") -> str:
+    """Inline Google Material Symbol; inherits the surrounding text color."""
+    style = f' style="font-size: {size};"' if size else ""
+    return f'<span class="pl-icon"{style}>{name}</span>'
+
+
+def stat_tile(label: str, value, caption: str, icon_name: str, tint: str = TRACK) -> str:
     return (
         f'<div class="pl-stat">'
-        f'<div class="pl-stat-icon" style="background: {tint};">{icon}</div>'
+        f'<div class="pl-stat-icon" style="background: {tint};">{icon(icon_name, "1.35rem")}</div>'
         f'<div><div class="pl-stat-label">{label}</div>'
         f'<div class="pl-stat-value">{value}</div>'
         f'<div class="pl-stat-caption">{caption}</div></div>'

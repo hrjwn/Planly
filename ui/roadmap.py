@@ -1,5 +1,6 @@
 """HTML for the Task Roadmap cards on the My Progress page."""
 from html import escape
+from ui.charts import icon
 from ui.components import deadline_style
 
 
@@ -48,7 +49,7 @@ def roadmap_card_html(entry: dict) -> str:
     nodes = []
     for i, step in enumerate(steps):
         if step.completed:
-            state, symbol = "done", "✓"
+            state, symbol = "done", icon("check", "1rem")
         elif i == current:
             state, symbol = "current", str(i + 1)
         else:
@@ -59,7 +60,7 @@ def roadmap_card_html(entry: dict) -> str:
 
     if steps:
         nodes.append(_roadmap_connector_html(all(s.completed for s in steps)))
-    nodes.append(_roadmap_node_html(f"Goal<br>{escape(task.deadline)}", "★", "goal-done" if is_done else "goal"))
+    nodes.append(_roadmap_node_html(f"Goal<br>{escape(task.deadline)}", icon("star", "1rem"), "goal-done" if is_done else "goal"))
 
     if steps:
         steps_caption = f"{entry['done_steps']} of {entry['total_steps']} steps done"

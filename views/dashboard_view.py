@@ -10,7 +10,7 @@ from services.recommendation_service import RecommendationService
 from ui.components import deadline_style, html
 from ui.charts import (
     ACCENT, INK, INK_MUTED, PRIORITY_COLORS,
-    card, inject_chart_styles, priority_legend, ring, stat_tile, week_strip,
+    card, icon, inject_chart_styles, priority_legend, ring, stat_tile, week_strip,
 )
 
 WORKLOAD_PILL = {
@@ -64,9 +64,9 @@ def render_dashboard(student: Student):
         f"""<div style="background: linear-gradient(135deg, #FFFFFF 0%, #FFF0F6 100%); border: 1px solid #F3B6CF; border-radius: 20px; padding: 1.6rem 1.9rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; box-shadow: 0 4px 18px rgba(217, 108, 157, 0.08);">
 <div style="flex: 1; min-width: 260px;">
 <div class="pl-eyebrow">{today.strftime("%A, %B %d").replace(" 0", " ")}</div>
-<div style="font-size: 1.9rem; font-weight: 800; color: {INK}; margin: 0.25rem 0 0.55rem 0; line-height: 1.2;">{_greeting()}, {escape(student.name.split(" ")[0] if student.name else "there")} 👋</div>
+<div style="font-size: 1.9rem; font-weight: 800; color: {INK}; margin: 0.25rem 0 0.55rem 0; line-height: 1.2;">{_greeting()}, {escape(student.name.split(" ")[0] if student.name else "there")}</div>
 <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.8rem;">
-<span style="background: #FFFFFF; border: 1px solid #F3B6CF; color: #C95A8D; padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 600;">🎓 {escape(student.course or "Student")}</span>
+<span style="background: #FFFFFF; border: 1px solid #F3B6CF; color: #C95A8D; padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 600;">{escape(student.course or "Student")}</span>
 <span style="background: {pill_bg}; color: {pill_fg}; padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;">● {pill_text}</span>
 </div>
 <div style="font-size: 0.9rem; color: {INK_MUTED}; max-width: 560px; line-height: 1.5;">{RecommendationService.get_primary_recommendation(workload)}</div>
@@ -83,10 +83,10 @@ def render_dashboard(student: Student):
 
     # ---------- Stat tiles ----------
     tiles = [
-        stat_tile("Pending", analysis["pending_tasks"], "Tasks to finish", "📝"),
-        stat_tile("Due this week", due_this_week, "Next 7 days", "📅", "#FFF7ED"),
-        stat_tile("Overdue", overdue, "Past their deadline" if overdue else "You're on track", "⏰", "#FEF2F2" if overdue else "#F0FDF4"),
-        stat_tile("Focus time", focus["formatted_weekly_time"], f'{focus["weekly_sessions"]} sessions this week', "🎯", "#F5F0FF"),
+        stat_tile("Pending", analysis["pending_tasks"], "Tasks to finish", "edit_note"),
+        stat_tile("Due this week", due_this_week, "Next 7 days", "calendar_month", "#FFF7ED"),
+        stat_tile("Overdue", overdue, "Past their deadline" if overdue else "You're on track", "alarm", "#FEF2F2" if overdue else "#F0FDF4"),
+        stat_tile("Focus time", focus["formatted_weekly_time"], f'{focus["weekly_sessions"]} sessions this week', "target", "#F5F0FF"),
     ]
     for col, tile in zip(st.columns(4, gap="small"), tiles):
         with col:
@@ -103,10 +103,10 @@ def render_dashboard(student: Student):
         if st.button("▶ Start Focus", key="qa_start_focus"):
             st.session_state.page_to_navigate = "Focus"
             st.rerun()
-        if st.button("📋 My Tasks", key="qa_view_tasks"):
+        if st.button(":material/assignment: My Tasks", key="qa_view_tasks"):
             st.session_state.page_to_navigate = "My Tasks"
             st.rerun()
-        if st.button("📈 My Progress", key="qa_view_progress"):
+        if st.button(":material/trending_up: My Progress", key="qa_view_progress"):
             st.session_state.page_to_navigate = "My Progress"
             st.rerun()
 
@@ -125,7 +125,7 @@ def render_dashboard(student: Student):
 
         plan = analysis["todays_plan"][:4]
         if not plan:
-            html(card("All caught up ✨", "", f'<div style="font-size: 0.88rem; color: {INK_MUTED};">No active tasks need attention today. Enjoy the breather, or add your next task.</div>'))
+            html(card("All caught up", "", f'<div style="font-size: 0.88rem; color: {INK_MUTED};">No active tasks need attention today. Enjoy the breather, or add your next task.</div>'))
         for i, t in enumerate(plan, start=1):
             steps = subtasks_by_task.get(t.task_id, [])
             done = sum(1 for s in steps if s.completed)
@@ -189,7 +189,7 @@ def render_dashboard(student: Student):
                 )
             body = "".join(rows)
         else:
-            body = f'<div style="font-size: 0.86rem; color: {INK_MUTED};">Nothing urgent: no overdue work or deadlines in the next two days. 🎉</div>'
+            body = f'<div style="font-size: 0.86rem; color: {INK_MUTED};">Nothing urgent: no overdue work or deadlines in the next two days. {icon("celebration")}</div>'
         html(card("Needs Attention", "Overdue, due soon, or high priority", body))
 
     html(

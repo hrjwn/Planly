@@ -3,6 +3,7 @@ import streamlit as st
 from models.student import Student
 from controllers.task_controller import TaskController
 from controllers.focus_controller import FocusController
+from ui.charts import icon
 from ui.components import html, page_header, section_title, stat_card, empty_state
 
 DURATION_OPTIONS = [15, 25, 45, 60]
@@ -320,7 +321,7 @@ def _render_floating_timer_widget(student: Student):
                 html(
                     f"""
                     <div class="ft-collapsed" style="font-size: 1.25rem; font-weight: 800; color: #D96C9D; font-variant-numeric: tabular-nums;">
-                        {"⏸" if paused else "⏱"} {mins:02d}:{secs:02d}
+                        {icon("pause" if paused else "timer")} {mins:02d}:{secs:02d}
                     </div>
                     """
                 )
@@ -369,7 +370,7 @@ def render_floating_timer(student: Student):
     flash = st.session_state.pop("focus_flash", None)
     if flash:
         ok, msg = flash
-        st.toast(msg, icon="🎉" if ok else "ℹ️")
+        st.toast(msg, icon=":material/celebration:" if ok else ":material/info:")
 
     if not _timer_running():
         return

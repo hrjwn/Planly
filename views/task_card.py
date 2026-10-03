@@ -154,7 +154,7 @@ def _render_steps(student: Student, task: Task, steps: list):
                     on_change=_on_step_toggled,
                     args=(step, task, steps),
                 )
-                if st.button("✕", key=f"subdel_{step.subtask_id}", type="tertiary", help="Delete step"):
+                if st.button(":material/close:", key=f"subdel_{step.subtask_id}", type="tertiary", help="Delete step"):
                     ok, msg = SubtaskController.delete_subtask(step)
                     if ok:
                         _reload_steps(task, steps)
