@@ -3,8 +3,7 @@ from typing import Tuple
 import streamlit as st
 from database.supabase_client import get_supabase_client, reset_supabase_client
 from models.student import Student
-from controllers.student_controller import StudentController
-
+from controllers.student_controllers import StudentController
 
 class AuthController:
 
@@ -68,7 +67,6 @@ class AuthController:
                 err_str = str(profile_err).lower()
                 if "duplicate" in err_str or "unique" in err_str:
                     return False, "An account with this email already exists."
-                print(f"[AuthController] Note during student insert: {profile_err}")
 
             return True, "Account created successfully! You can now log in with your credentials."
 
@@ -118,8 +116,8 @@ class AuthController:
                     }).execute()
                     if insert_res.data:
                         student = Student.from_dict(insert_res.data[0])
-                except Exception as db_err:
-                    print(f"[AuthController] Profile auto-creation fallback error: {db_err}")
+                except Exception:
+                    pass
 
             if not student:
                 student = Student(
@@ -133,6 +131,7 @@ class AuthController:
             st.session_state.logged_in = True
             st.session_state.student = student
             st.session_state.auth_user_id = auth_user_id
+            st.session_state.nav_radio = "Dashboard"
 
             return True, f"Welcome back, {student.name}!"
 

@@ -1,6 +1,5 @@
 from typing import Dict, Any, List
 
-
 class RecommendationService:
 
     @staticmethod

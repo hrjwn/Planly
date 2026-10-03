@@ -1,8 +1,7 @@
-from datetime import date, datetime
 from typing import List, Tuple
+from datetime import date, datetime
 from database.supabase_client import get_supabase_client
 from models.task import Task
-
 
 class TaskController:
 
@@ -22,8 +21,7 @@ class TaskController:
             )
             records = response.data or []
             return [Task.from_dict(row) for row in records]
-        except Exception as e:
-            print(f"[TaskController] Error fetching tasks: {e}")
+        except Exception:
             return []
 
     @staticmethod

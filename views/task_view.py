@@ -1,17 +1,21 @@
-from datetime import date
+from datetime import date, datetime
 import streamlit as st
 from models.student import Student
-from controllers.task_controller import TaskController
-from ui.components import html, page_header, empty_state, priority_badge_style, deadline_badge
-
-PRIORITY_OPTIONS = ["High", "Medium", "Low"]
-PRIORITY_ORDER = {p: i for i, p in enumerate(PRIORITY_OPTIONS)}
-
+from controllers.task_controllers import TaskController
 
 def render_task_view(student: Student):
-    page_header(
-        "My Tasks",
-        "Organize your academic assignments, set deadlines, and track your completion status.",
+    st.markdown(
+        """
+        <div style="margin-bottom: 1.2rem;">
+            <h1 style="font-size: 2.2rem; font-weight: 700; color: #3B3036; margin-bottom: 0.2rem;">
+                My Tasks
+            </h1>
+            <p style="font-size: 0.95rem; color: #8A737D; margin: 0;">
+                Organize your academic assignments, set deadlines, and track your completion status.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     should_expand_add = st.session_state.get("open_add_task", False)
@@ -25,11 +29,11 @@ def render_task_view(student: Student):
             with col_t1:
                 title = st.text_input(
                     "Task Title",
-                    placeholder="e.g., Programming Activity / Database Assignment",
+                    placeholder="Enter your Assignment/Project here",
                 )
                 subject = st.text_input(
                     "Subject / Course",
-                    placeholder="e.g., Computer Science / Data Structures",
+                    placeholder="Enter your Subject/Course here",
                 )
 
             with col_t2:
@@ -40,7 +44,7 @@ def render_task_view(student: Student):
                 )
                 priority = st.selectbox(
                     "Priority Level",
-                    options=PRIORITY_OPTIONS,
+                    options=["High", "Medium", "Low"],
                     index=1,
                 )
 
@@ -67,7 +71,7 @@ def render_task_view(student: Student):
     tasks = TaskController.get_student_tasks(student.student_id)
 
     if not tasks:
-        html(
+        st.markdown(
             """
             <div style="background-color: #FFFFFF; border: 1px dashed #F3B6CF; border-radius: 16px; padding: 2.5rem; text-align: center; margin: 1.5rem 0;">
                 <div style="font-size: 1.2rem; font-weight: 600; color: #3B3036; margin-bottom: 0.4rem;">
@@ -77,18 +81,20 @@ def render_task_view(student: Student):
                     Start by adding your first academic task using the form above.
                 </div>
             </div>
-            """
+            """,
+            unsafe_allow_html=True,
         )
         return
 
     all_subjects = sorted(list(set(t.subject.strip() for t in tasks if t.subject and t.subject.strip())))
 
-    html(
+    st.markdown(
         """
         <div style="font-size: 0.9rem; font-weight: 600; color: #8A737D; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">
             Filter and Sort Controls
         </div>
-        """
+        """,
+        unsafe_allow_html=True,
     )
 
     f_col1, f_col2, f_col3, f_col4, f_col5 = st.columns([1.6, 1.1, 1.1, 1.1, 1.1])
@@ -112,7 +118,7 @@ def render_task_view(student: Student):
     with f_col3:
         priority_filter = st.selectbox(
             "Priority",
-            options=["All Priorities"] + PRIORITY_OPTIONS,
+            options=["All Priorities", "High", "Medium", "Low"],
             label_visibility="collapsed",
             key="task_priority_filter",
         )
@@ -155,27 +161,36 @@ def render_task_view(student: Student):
 
     def sort_key(t):
         if sort_by == "Deadline":
-            return (t.deadline_date() or date.max, t.title)
+            try:
+                return (datetime.strptime(t.deadline, "%Y-%m-%d").date(), t.title)
+            except Exception:
+                return (date.max, t.title)
         elif sort_by == "Priority":
-            return (PRIORITY_ORDER.get(t.priority, 1), t.deadline)
+            order = {"High": 0, "Medium": 1, "Low": 2}
+            return (order.get(t.priority, 1), t.deadline)
         elif sort_by == "Status":
             return (0 if not t.completed else 1, t.deadline)
         return t.deadline
 
     filtered_tasks = sorted(filtered_tasks, key=sort_key)
 
-    html(
+    st.markdown(
         f"""
         <div style="font-size: 0.85rem; color: #8A737D; margin-top: 0.4rem; margin-bottom: 0.8rem;">
             Showing <b style="color: #3B3036;">{len(filtered_tasks)}</b> of <b style="color: #3B3036;">{len(tasks)}</b> tasks
         </div>
-        """
+        """,
+        unsafe_allow_html=True,
     )
 
     if not filtered_tasks:
-        empty_state(
-            "No tasks match your filter criteria. Try clearing the search or changing the filters.",
-            padding="2rem",
+        st.markdown(
+            """
+            <div style="background-color: #FFFFFF; border: 1px dashed #F3B6CF; border-radius: 12px; padding: 2rem; text-align: center; color: #8A737D; font-size: 0.9rem;">
+                No tasks match your filter criteria. Try clearing the search or changing the filters.
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         return
 
@@ -185,14 +200,15 @@ def render_task_view(student: Student):
         is_editing = (editing_id == task.task_id)
 
         if is_editing:
-            html(
+            st.markdown(
                 f"""
                 <div style="background-color: #FFF7FA; border: 1.5px solid #D96C9D; border-radius: 12px; padding: 1.2rem; margin-bottom: 0.8rem; box-shadow: 0 4px 12px rgba(217, 108, 157, 0.1);">
                     <div style="font-size: 0.85rem; font-weight: 700; color: #D96C9D; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">
                         Editing Task: {task.title}
                     </div>
                 </div>
-                """
+                """,
+                unsafe_allow_html=True,
             )
             with st.form(key=f"edit_form_{task.task_id}"):
                 ec1, ec2 = st.columns([2, 1])
@@ -200,11 +216,18 @@ def render_task_view(student: Student):
                     edit_title = st.text_input("Task Title", value=task.title)
                     edit_subject = st.text_input("Subject / Course", value=task.subject)
                 with ec2:
-                    edit_deadline = st.date_input("Deadline", value=task.deadline_date() or date.today())
+                    try:
+                        cur_due = datetime.strptime(task.deadline, "%Y-%m-%d").date()
+                    except Exception:
+                        cur_due = date.today()
+                    edit_deadline = st.date_input("Deadline", value=cur_due)
+
+                    p_indices = {"High": 0, "Medium": 1, "Low": 2}
+                    cur_idx = p_indices.get(task.priority, 1)
                     edit_priority = st.selectbox(
                         "Priority",
-                        options=PRIORITY_OPTIONS,
-                        index=PRIORITY_ORDER.get(task.priority, 1),
+                        options=["High", "Medium", "Low"],
+                        index=cur_idx,
                     )
 
                 edit_status = st.checkbox("Mark as Completed", value=task.completed)
@@ -239,48 +262,54 @@ def render_task_view(student: Student):
         else:
             is_done = task.is_completed()
 
-            priority_style = priority_badge_style(task.priority)
+            p_badge_styles = {
+                "High": "background-color: #FDF2F8; color: #BE185D; border: 1px solid #FBCFE8;",
+                "Medium": "background-color: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5;",
+                "Low": "background-color: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7;",
+            }
+            priority_style = p_badge_styles.get(task.priority, "background-color: #F3F4F6; color: #4B5563;")
 
             if is_done:
                 status_badge = "<span style='background-color: #FDF2F8; color: #9D174D; border: 1px solid #FBCFE8; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>Completed</span>"
+                card_border = "#F3B6CF"
+                card_bg = "#FFFFFF"
                 title_style = "text-decoration: line-through; color: #8A737D;"
-                urgency_badge = ""
+                urgency_badge = "<span></span>"
             else:
                 status_badge = "<span style='background-color: #FCE8F0; color: #C95A8D; border: 1px solid #F3B6CF; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>Pending</span>"
+                card_border = "#F3B6CF"
+                card_bg = "#FFFFFF"
                 title_style = "color: #3B3036; font-weight: 600;"
 
+                deadline_label = task.get_deadline_label()
                 days_left = task.days_until_deadline()
-                if days_left > 1:
-                    urgency_badge = f"<span style='color: #8A737D; font-size: 0.8rem;'>Due in {days_left}d</span>"
+                if days_left < 0:
+                    urgency_badge = f"<span style='background-color: #FEE2E2; color: #B91C1C; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{deadline_label}</span>"
+                elif days_left in (0, 1):
+                    urgency_badge = f"<span style='background-color: #FEF3C7; color: #B45309; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{deadline_label}</span>"
                 else:
-                    badge_text, badge_style = deadline_badge(days_left)
-                    urgency_badge = f"<span style='{badge_style} padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{badge_text}</span>"
+                    urgency_badge = f"<span style='background-color: #FCE8F0; color: #C95A8D; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{deadline_label}</span>"
 
-            html(
-                f"""
-                <div style="background-color: #FFFFFF; border: 1px solid #F3B6CF; border-radius: 12px; padding: 1.1rem 1.3rem; margin-bottom: 0.6rem; box-shadow: 0 1px 4px rgba(217, 108, 157, 0.04);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            {status_badge}
-                            <span style="{priority_style} padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">{task.priority} Priority</span>
-                        </div>
-                        <div>
-                            {urgency_badge}
-                        </div>
-                    </div>
-                    <div style="font-size: 1.05rem; margin-bottom: 0.35rem; {title_style}">
-                        {task.title}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.83rem; color: #8A737D;">
-                        <span>Subject: <b style="color: #3B3036;">{task.subject}</b></span>
-                        <span>•</span>
-                        <span>Deadline: <b style="color: #3B3036;">{task.deadline}</b></span>
-                    </div>
-                </div>
-                """
+            st.markdown(
+                f"""<div style="background-color: {card_bg}; border: 1px solid {card_border}; border-radius: 12px; padding: 1.1rem 1.3rem; margin-bottom: 0.6rem; box-shadow: 0 1px 4px rgba(217, 108, 157, 0.04);">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+<div style="display: flex; align-items: center; gap: 8px;">
+{status_badge}
+<span style="{priority_style} padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">{task.priority} Priority</span>
+</div>
+<div>{urgency_badge}</div>
+</div>
+<div style="font-size: 1.05rem; margin-bottom: 0.35rem; {title_style}">{task.title}</div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 0.83rem; color: #8A737D;">
+<span>Subject: <b style="color: #3B3036;">{task.subject}</b></span>
+<span>•</span>
+<span>Deadline: <b style="color: #3B3036;">{task.deadline}</b></span>
+</div>
+</div>""",
+                unsafe_allow_html=True,
             )
 
-            btn_col_toggle, btn_col_edit, btn_col_delete = st.columns([1.5, 1, 1])
+            btn_col_toggle, btn_col_focus, btn_col_edit, btn_col_delete = st.columns([1.5, 1.2, 1, 1])
 
             with btn_col_toggle:
                 toggle_btn_label = "Mark Incomplete" if is_done else "Mark Complete"
@@ -291,6 +320,15 @@ def render_task_view(student: Student):
                         st.rerun()
                     else:
                         st.error(msg)
+
+            with btn_col_focus:
+                if not is_done:
+                    if st.button("Start Focus", key=f"foc_{task.task_id}", use_container_width=True):
+                        st.session_state.focus_target_task_id = task.task_id
+                        st.session_state.page_to_navigate = "Focus"
+                        st.rerun()
+                else:
+                    st.write("")
 
             with btn_col_edit:
                 if st.button("Edit", key=f"edt_{task.task_id}", use_container_width=True):

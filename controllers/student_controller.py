@@ -2,7 +2,6 @@ from typing import Optional, Tuple
 from database.supabase_client import get_supabase_client
 from models.student import Student
 
-
 class StudentController:
 
     @staticmethod
@@ -19,8 +18,7 @@ class StudentController:
             if response.data and len(response.data) > 0:
                 return Student.from_dict(response.data[0])
             return None
-        except Exception as e:
-            print(f"[StudentController] Error fetching profile: {e}")
+        except Exception:
             return None
 
     @staticmethod

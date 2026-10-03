@@ -1,3 +1,4 @@
-from .auth_controller import AuthController
-from .task_controller import TaskController
-from .student_controller import StudentController
+from .auth_controllers import AuthController
+from .task_controllers import TaskController
+from .student_controllers import StudentController
+from .focus_controllers import FocusController

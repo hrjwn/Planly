@@ -1,44 +1,30 @@
-import os
 import streamlit as st
-from supabase import Client, create_client
-
-# Each browser session gets its own client so one student's login
-# never leaks into another student's session.
-_SESSION_KEY = "_supabase_client"
-
-
-def _get_setting(name: str) -> str:
-    try:
-        if name in st.secrets:
-            return st.secrets[name]
-    except Exception:
-        pass
-    return os.environ.get(name, "")
-
+from supabase import create_client, Client
 
 def get_supabase_client() -> Client:
-    client = st.session_state.get(_SESSION_KEY)
-    if client is not None:
-        return client
+    if "supabase_client" not in st.session_state:
+        try:
+            supabase_url = st.secrets.get("SUPABASE_URL", "").strip()
+            supabase_key = st.secrets.get("SUPABASE_KEY", "").strip()
+        except Exception:
+            supabase_url = ""
+            supabase_key = ""
 
-    url = _get_setting("SUPABASE_URL")
-    key = _get_setting("SUPABASE_KEY")
-    if not url or not key:
-        st.error(
-            "Supabase is not configured. Add SUPABASE_URL and SUPABASE_KEY to "
-            ".streamlit/secrets.toml (see .streamlit/secrets.toml.example)."
-        )
-        st.stop()
+        if not supabase_url or not supabase_key or "your-project-id" in supabase_url:
+            st.error(
+                "Supabase credentials are missing or not configured. "
+                "Please configure .streamlit/secrets.toml with your Supabase URL and anon key."
+            )
+            st.stop()
 
-    client = create_client(url, key)
-    st.session_state[_SESSION_KEY] = client
-    return client
+        st.session_state.supabase_client = create_client(supabase_url, supabase_key)
 
+    return st.session_state.supabase_client
 
 def reset_supabase_client():
-    client = st.session_state.pop(_SESSION_KEY, None)
-    if client is not None:
+    if "supabase_client" in st.session_state:
         try:
-            client.auth.sign_out()
+            st.session_state.supabase_client.auth.sign_out()
         except Exception:
             pass
+        del st.session_state["supabase_client"]
