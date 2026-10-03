@@ -7,14 +7,6 @@ class Student:
         self.email = email.strip().lower() if email else ""
         self.course = course.strip() if course else ""
 
-    def get_profile(self) -> dict:
-        return {
-            "Student ID": self.student_id,
-            "Name": self.name,
-            "Email": self.email,
-            "Course": self.course,
-        }
-
     def update_info(self, name: str, course: str):
         if name:
             self.name = name.strip()

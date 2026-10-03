@@ -1,8 +1,8 @@
 import streamlit as st
 from models.student import Student
-from controllers.student_controllers import StudentController
-from controllers.task_controllers import TaskController
-from controllers.focus_controllers import FocusController
+from controllers.student_controller import StudentController
+from controllers.task_controller import TaskController
+from controllers.focus_controller import FocusController
 from services.workload_analyzer import WorkloadAnalyzer
 
 def render_profile_view(student: Student):
@@ -124,7 +124,7 @@ def render_profile_view(student: Student):
             unsafe_allow_html=True,
         )
         st.markdown(
-            f"""
+            """
             <div style="background-color: #FFFFFF; padding: 1.3rem; border-radius: 14px; border: 1px solid #F3B6CF; box-shadow: 0 1px 4px rgba(217, 108, 157, 0.04); font-size: 0.88rem; color: #3B3036; line-height: 1.6;">
                 <div style="margin-bottom: 0.8rem;">
                     <b style="color: #D96C9D;">Authentication Provider</b><br>

@@ -89,16 +89,6 @@ class Task:
         else:
             return f"Due in {days} days"
 
-    def get_task_data(self) -> dict:
-        return {
-            "ID": self.task_id,
-            "Task Title": self.title,
-            "Subject": self.subject,
-            "Deadline": self.deadline,
-            "Priority": self.priority,
-            "Status": "Completed" if self.completed else "Pending",
-        }
-
     def to_dict(self) -> dict:
         data = {
             "student_id": self.student_id,

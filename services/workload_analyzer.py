@@ -1,6 +1,8 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import date, datetime
 from models.task import Task
+from models.subtask import Subtask
+from services.roadmap_service import RoadmapService
 
 class WorkloadAnalyzer:
 
@@ -8,13 +10,23 @@ class WorkloadAnalyzer:
     MEDIUM_WORKLOAD_MAX = 7
 
     @staticmethod
-    def analyze(tasks: List[Task]) -> Dict[str, Any]:
+    def analyze(
+        tasks: List[Task],
+        subtasks_by_task: Optional[Dict[str, List[Subtask]]] = None,
+    ) -> Dict[str, Any]:
+        subtasks_by_task = subtasks_by_task or {}
         total = len(tasks)
         completed = sum(1 for t in tasks if t.is_completed())
         pending = total - completed
 
+        # Completed steps give partial credit toward their main task.
+        progress_by_id = {
+            t.task_id: RoadmapService.task_progress(t, subtasks_by_task.get(t.task_id))
+            for t in tasks
+        }
+
         if total > 0:
-            completion_percentage = round((completed / total) * 100, 1)
+            completion_percentage = round((sum(progress_by_id.values()) / total) * 100, 1)
         else:
             completion_percentage = 0.0
 
@@ -51,8 +63,9 @@ class WorkloadAnalyzer:
             subj = t.subject if t.subject else "General"
             subject_counts[subj] = subject_counts.get(subj, 0) + 1
             if subj not in subject_progress:
-                subject_progress[subj] = {"total": 0, "completed": 0, "pending": 0, "percentage": 0.0}
+                subject_progress[subj] = {"total": 0, "completed": 0, "pending": 0, "percentage": 0.0, "progress_sum": 0.0}
             subject_progress[subj]["total"] += 1
+            subject_progress[subj]["progress_sum"] += progress_by_id[t.task_id]
             if t.is_completed():
                 subject_progress[subj]["completed"] += 1
             else:
@@ -60,7 +73,7 @@ class WorkloadAnalyzer:
 
         for subj, stats in subject_progress.items():
             if stats["total"] > 0:
-                stats["percentage"] = round((stats["completed"] / stats["total"]) * 100, 1)
+                stats["percentage"] = round((stats.pop("progress_sum") / stats["total"]) * 100, 1)
 
         todays_plan_ids = set()
         todays_plan: List[Task] = []

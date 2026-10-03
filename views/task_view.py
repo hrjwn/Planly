@@ -1,21 +1,15 @@
 from datetime import date, datetime
 import streamlit as st
 from models.student import Student
-from controllers.task_controllers import TaskController
+from controllers.task_controller import TaskController
+from controllers.subtask_controller import SubtaskController
+from ui.components import page_header
+from views.task_card import inject_task_card_styles, render_task_card
 
 def render_task_view(student: Student):
-    st.markdown(
-        """
-        <div style="margin-bottom: 1.2rem;">
-            <h1 style="font-size: 2.2rem; font-weight: 700; color: #3B3036; margin-bottom: 0.2rem;">
-                My Tasks
-            </h1>
-            <p style="font-size: 0.95rem; color: #8A737D; margin: 0;">
-                Organize your academic assignments, set deadlines, and track your completion status.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    page_header(
+        "My Tasks",
+        "Organize your academic assignments, set deadlines, and track your completion status.",
     )
 
     should_expand_add = st.session_state.get("open_add_task", False)
@@ -195,6 +189,10 @@ def render_task_view(student: Student):
         return
 
     editing_id = st.session_state.get("editing_task_id", None)
+    if "open_task_ids" not in st.session_state:
+        st.session_state.open_task_ids = set()
+    inject_task_card_styles()
+    subtasks_by_task = SubtaskController.get_student_subtasks(student.student_id)
 
     for task in filtered_tasks:
         is_editing = (editing_id == task.task_id)
@@ -260,86 +258,4 @@ def render_task_view(student: Student):
                     st.rerun()
 
         else:
-            is_done = task.is_completed()
-
-            p_badge_styles = {
-                "High": "background-color: #FDF2F8; color: #BE185D; border: 1px solid #FBCFE8;",
-                "Medium": "background-color: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5;",
-                "Low": "background-color: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7;",
-            }
-            priority_style = p_badge_styles.get(task.priority, "background-color: #F3F4F6; color: #4B5563;")
-
-            if is_done:
-                status_badge = "<span style='background-color: #FDF2F8; color: #9D174D; border: 1px solid #FBCFE8; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>Completed</span>"
-                card_border = "#F3B6CF"
-                card_bg = "#FFFFFF"
-                title_style = "text-decoration: line-through; color: #8A737D;"
-                urgency_badge = "<span></span>"
-            else:
-                status_badge = "<span style='background-color: #FCE8F0; color: #C95A8D; border: 1px solid #F3B6CF; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>Pending</span>"
-                card_border = "#F3B6CF"
-                card_bg = "#FFFFFF"
-                title_style = "color: #3B3036; font-weight: 600;"
-
-                deadline_label = task.get_deadline_label()
-                days_left = task.days_until_deadline()
-                if days_left < 0:
-                    urgency_badge = f"<span style='background-color: #FEE2E2; color: #B91C1C; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{deadline_label}</span>"
-                elif days_left in (0, 1):
-                    urgency_badge = f"<span style='background-color: #FEF3C7; color: #B45309; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{deadline_label}</span>"
-                else:
-                    urgency_badge = f"<span style='background-color: #FCE8F0; color: #C95A8D; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;'>{deadline_label}</span>"
-
-            st.markdown(
-                f"""<div style="background-color: {card_bg}; border: 1px solid {card_border}; border-radius: 12px; padding: 1.1rem 1.3rem; margin-bottom: 0.6rem; box-shadow: 0 1px 4px rgba(217, 108, 157, 0.04);">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-<div style="display: flex; align-items: center; gap: 8px;">
-{status_badge}
-<span style="{priority_style} padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">{task.priority} Priority</span>
-</div>
-<div>{urgency_badge}</div>
-</div>
-<div style="font-size: 1.05rem; margin-bottom: 0.35rem; {title_style}">{task.title}</div>
-<div style="display: flex; align-items: center; gap: 10px; font-size: 0.83rem; color: #8A737D;">
-<span>Subject: <b style="color: #3B3036;">{task.subject}</b></span>
-<span>•</span>
-<span>Deadline: <b style="color: #3B3036;">{task.deadline}</b></span>
-</div>
-</div>""",
-                unsafe_allow_html=True,
-            )
-
-            btn_col_toggle, btn_col_focus, btn_col_edit, btn_col_delete = st.columns([1.5, 1.2, 1, 1])
-
-            with btn_col_toggle:
-                toggle_btn_label = "Mark Incomplete" if is_done else "Mark Complete"
-                if st.button(toggle_btn_label, key=f"tgl_{task.task_id}", use_container_width=True):
-                    ok, msg = TaskController.toggle_task_completion(task)
-                    if ok:
-                        st.success(msg)
-                        st.rerun()
-                    else:
-                        st.error(msg)
-
-            with btn_col_focus:
-                if not is_done:
-                    if st.button("Start Focus", key=f"foc_{task.task_id}", use_container_width=True):
-                        st.session_state.focus_target_task_id = task.task_id
-                        st.session_state.page_to_navigate = "Focus"
-                        st.rerun()
-                else:
-                    st.write("")
-
-            with btn_col_edit:
-                if st.button("Edit", key=f"edt_{task.task_id}", use_container_width=True):
-                    st.session_state.editing_task_id = task.task_id
-                    st.rerun()
-
-            with btn_col_delete:
-                if st.button("Delete", key=f"del_{task.task_id}", use_container_width=True):
-                    ok, msg = TaskController.delete_task(task.task_id)
-                    if ok:
-                        st.warning(msg)
-                        st.rerun()
-                    else:
-                        st.error(msg)
+            render_task_card(student, task, subtasks_by_task.get(task.task_id, []))

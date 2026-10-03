@@ -1,4 +1,3 @@
-from typing import Tuple
 import streamlit as st
 
 PRIORITY_BADGE_STYLES = {
@@ -74,13 +73,10 @@ def priority_badge_style(priority: str) -> str:
     return PRIORITY_BADGE_STYLES.get(priority, _DEFAULT_PRIORITY_STYLE)
 
 
-def deadline_badge(days_left: int, long_units: bool = False) -> Tuple[str, str]:
-    """Return (label, colour style) for a deadline that is `days_left` days away."""
-    unit = " days" if long_units else "d"
+def deadline_style(days_left: int) -> str:
+    """Background/text colours for a deadline badge `days_left` days away."""
     if days_left < 0:
-        return f"Overdue by {abs(days_left)}{unit}", "background-color: #FEE2E2; color: #B91C1C;"
-    if days_left == 0:
-        return "Due Today", "background-color: #FEF3C7; color: #B45309;"
-    if days_left == 1:
-        return "Due Tomorrow", "background-color: #FEF3C7; color: #B45309;"
-    return f"Due in {days_left}{unit}", "background-color: #FCE8F0; color: #C95A8D;"
+        return "background-color: #FEE2E2; color: #B91C1C;"
+    if days_left <= 1:
+        return "background-color: #FEF3C7; color: #B45309;"
+    return "background-color: #FCE8F0; color: #C95A8D;"

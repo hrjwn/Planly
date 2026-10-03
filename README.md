@@ -10,8 +10,11 @@ Planly is a student workload and task management system designed to help student
 - Add, edit, and delete academic tasks
 - Set a subject, deadline, and priority (Low / Medium / High) for each task
 - Mark tasks as completed or pending
+- Break a main task into specific steps (subtasks); finishing every step completes the task
+- Roadmap on the Progress page showing each main task's steps, your next step, and the goal deadline
 - Dashboard with workload level (Low / Medium / High) and overdue tasks
-- Progress page with completion rate and charts by priority and subject
+- Dashboard with a weekly deadline calendar, today's plan, and focus stats
+- Progress page with a completion ring, subject and priority charts, and a weekly focus chart
 - Study recommendations based on your current workload
 - Each student only sees their own data (Supabase Row Level Security)
 
@@ -32,41 +35,50 @@ The thresholds live in `services/workload_analyzer.py` (`LOW_WORKLOAD_MAX`, `MED
 - Python (Object-Oriented Programming)
 - Streamlit (web interface)
 - Supabase (accounts and database)
-- pandas (charts and tables)
 
 ## Project Structure
 
 ```text
 Planly/
 │
-├── app.py                     # Entry point (streamlit run app.py)
+├── app.py                     # Entry point: page config, login gate, page routing
 │
-├── models/                    # Data models
+├── models/                    # Plain data classes
+│   ├── student.py
 │   ├── task.py
-│   └── student.py
+│   ├── subtask.py             # A step that works toward a main task
+│   └── focus_session.py
 │
-├── controllers/               # Auth, student, and task logic (Supabase)
+├── controllers/               # Supabase reads/writes
 │   ├── auth_controller.py
 │   ├── student_controller.py
-│   └── task_controller.py
+│   ├── task_controller.py
+│   ├── subtask_controller.py
+│   └── focus_controller.py
 │
-├── services/                  # Business logic (no Streamlit)
+├── services/                  # Business logic (no Streamlit, no database)
 │   ├── workload_analyzer.py
-│   └── recommendation_service.py
+│   ├── recommendation_service.py
+│   ├── study_scheduler.py
+│   └── roadmap_service.py
 │
 ├── database/
 │   ├── supabase_client.py     # Supabase connection
 │   └── schema.sql             # Tables to create in Supabase
 │
-├── ui/                        # Shared Streamlit UI pieces
+├── ui/                        # Shared presentation pieces
 │   ├── styles.py              # Global theme CSS
 │   ├── sidebar.py             # Sidebar header & navigation
-│   └── components.py          # Reusable cards, headers, and badges
+│   ├── components.py          # Page headers, stat cards, badge styles
+│   ├── charts.py              # HTML/CSS charts and stat tiles
+│   └── roadmap.py             # Task Roadmap cards
 │
 ├── views/                     # Streamlit pages
 │   ├── login_view.py
 │   ├── dashboard_view.py
 │   ├── task_view.py
+│   ├── task_card.py           # One task card with its steps (used by task_view)
+│   ├── focus_view.py          # Focus timer page + floating timer widget
 │   ├── progress_view.py
 │   └── profile_view.py
 │

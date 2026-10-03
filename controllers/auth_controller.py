@@ -3,7 +3,7 @@ from typing import Tuple
 import streamlit as st
 from database.supabase_client import get_supabase_client, reset_supabase_client
 from models.student import Student
-from controllers.student_controllers import StudentController
+from controllers.student_controller import StudentController
 
 class AuthController:
 
