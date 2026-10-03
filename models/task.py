@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Optional
 
 
 class Task:
@@ -65,26 +66,20 @@ class Task:
         if completed is not None:
             self.completed = bool(completed)
 
-    def days_until_deadline(self) -> int:
+    def deadline_date(self) -> Optional[date]:
         try:
-            due_date = datetime.strptime(self.deadline, "%Y-%m-%d").date()
-            today = date.today()
-            return (due_date - today).days
+            return datetime.strptime(self.deadline, "%Y-%m-%d").date()
         except Exception:
+            return None
+
+    def days_until_deadline(self) -> int:
+        due_date = self.deadline_date()
+        if due_date is None:
             return 999
+        return (due_date - date.today()).days
 
     def is_overdue(self) -> bool:
         return not self.completed and self.days_until_deadline() < 0
-
-    def get_task_data(self) -> dict:
-        return {
-            "ID": self.task_id,
-            "Task Title": self.title,
-            "Subject": self.subject,
-            "Deadline": self.deadline,
-            "Priority": self.priority,
-            "Status": "Completed" if self.completed else "Pending",
-        }
 
     def to_dict(self) -> dict:
         data = {

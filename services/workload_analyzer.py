@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from datetime import date, datetime
+from datetime import date
 from models.task import Task
 
 
@@ -28,13 +28,7 @@ class WorkloadAnalyzer:
 
         pending_list = [t for t in tasks if not t.is_completed()]
 
-        def parse_deadline(task: Task):
-            try:
-                return datetime.strptime(task.deadline, "%Y-%m-%d").date()
-            except Exception:
-                return date.max
-
-        upcoming_tasks = sorted(pending_list, key=parse_deadline)
+        upcoming_tasks = sorted(pending_list, key=lambda t: t.deadline_date() or date.max)
         overdue_tasks = [t for t in pending_list if t.is_overdue()]
 
         priority_counts = {"High": 0, "Medium": 0, "Low": 0}

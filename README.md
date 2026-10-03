@@ -39,16 +39,16 @@ The thresholds live in `services/workload_analyzer.py` (`LOW_WORKLOAD_MAX`, `MED
 ```text
 Planly/
 │
-├── test_app.py                # Entry point (streamlit run test_app.py)
+├── app.py                     # Entry point (streamlit run app.py)
 │
 ├── models/                    # Data models
 │   ├── task.py
 │   └── student.py
 │
 ├── controllers/               # Auth, student, and task logic (Supabase)
-│   ├── auth_controllers.py
-│   ├── student_controllers.py
-│   └── task_controllers.py
+│   ├── auth_controller.py
+│   ├── student_controller.py
+│   └── task_controller.py
 │
 ├── services/                  # Business logic (no Streamlit)
 │   ├── workload_analyzer.py
@@ -57,6 +57,11 @@ Planly/
 ├── database/
 │   ├── supabase_client.py     # Supabase connection
 │   └── schema.sql             # Tables to create in Supabase
+│
+├── ui/                        # Shared Streamlit UI pieces
+│   ├── styles.py              # Global theme CSS
+│   ├── sidebar.py             # Sidebar header & navigation
+│   └── components.py          # Reusable cards, headers, and badges
 │
 ├── views/                     # Streamlit pages
 │   ├── login_view.py
@@ -91,7 +96,7 @@ Works the same on Windows, macOS, and Linux.
 3. Start the app:
 
    ```bash
-   python -m streamlit run test_app.py
+   python -m streamlit run app.py
    ```
 
    It opens at http://localhost:8501.
@@ -103,6 +108,6 @@ Works the same on Windows, macOS, and Linux.
 | "Supabase is not configured" | Make sure `.streamlit/secrets.toml` exists (or the environment variables are set). The app does not read `secrets.toml.example`. |
 | `ModuleNotFoundError` | Run `python -m pip install -r requirements.txt` again. |
 | "Email not confirmed" when logging in | Turn off **Confirm email** in Supabase (see step 2), or click the link in your inbox. |
-| `streamlit` command not found | Use `python -m streamlit run test_app.py` instead of `streamlit run`. |
+| `streamlit` command not found | Use `python -m streamlit run app.py` instead of `streamlit run`. |
 
 > Never commit `.streamlit/secrets.toml` or put real keys in `secrets.toml.example`.

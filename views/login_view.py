@@ -1,5 +1,5 @@
 import streamlit as st
-from controllers.auth_controllers import AuthController
+from controllers.auth_controller import AuthController
 
 
 def render_login_view():
