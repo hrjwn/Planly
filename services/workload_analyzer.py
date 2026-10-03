@@ -1,112 +1,63 @@
-# =========================================================
-# WORKLOAD ANALYZER SERVICE
-# Planly - Student Workload & Task Management System
-# =========================================================
-
-from datetime import date
+from typing import List, Dict, Any
+from datetime import date, datetime
+from models.task import Task
 
 
 class WorkloadAnalyzer:
-    """
-    Calculates and evaluates a student's workload.
-    """
 
-    # =====================================================
-    # CALCULATE WORKLOAD SCORE
-    # =====================================================
+    LOW_WORKLOAD_MAX = 3
+    MEDIUM_WORKLOAD_MAX = 7
 
-    def calculate_score(self, student):
+    @staticmethod
+    def analyze(tasks: List[Task]) -> Dict[str, Any]:
+        total = len(tasks)
+        completed = sum(1 for t in tasks if t.is_completed())
+        pending = total - completed
 
-        pending_tasks = student.get_pending_tasks()
+        if total > 0:
+            completion_percentage = round((completed / total) * 100, 1)
+        else:
+            completion_percentage = 0.0
 
-        if not pending_tasks:
-            return 0
+        if pending <= WorkloadAnalyzer.LOW_WORKLOAD_MAX:
+            workload_level = "Low"
+        elif pending <= WorkloadAnalyzer.MEDIUM_WORKLOAD_MAX:
+            workload_level = "Medium"
+        else:
+            workload_level = "High"
 
-        score = 0
+        pending_list = [t for t in tasks if not t.is_completed()]
 
-        for task in pending_tasks:
+        def parse_deadline(task: Task):
+            try:
+                return datetime.strptime(task.deadline, "%Y-%m-%d").date()
+            except Exception:
+                return date.max
 
-            # ---------------------------------------------
-            # PRIORITY POINTS
-            # ---------------------------------------------
+        upcoming_tasks = sorted(pending_list, key=parse_deadline)
+        overdue_tasks = [t for t in pending_list if t.is_overdue()]
 
-            if task.priority == "High":
-                score += 3
-
-            elif task.priority == "Medium":
-                score += 2
-
+        priority_counts = {"High": 0, "Medium": 0, "Low": 0}
+        for t in pending_list:
+            if t.priority in priority_counts:
+                priority_counts[t.priority] += 1
             else:
-                score += 1
+                priority_counts["Medium"] += 1
 
-            # ---------------------------------------------
-            # DEADLINE POINTS
-            # ---------------------------------------------
+        subject_counts: Dict[str, int] = {}
+        for t in tasks:
+            subj = t.subject if t.subject else "General"
+            subject_counts[subj] = subject_counts.get(subj, 0) + 1
 
-            days_left = task.days_until_deadline(
-                date.today()
-            )
-
-            if days_left <= 1:
-                score += 3
-
-            elif days_left <= 3:
-                score += 2
-
-            elif days_left <= 7:
-                score += 1
-
-            # ---------------------------------------------
-            # STUDY TIME POINTS
-            # ---------------------------------------------
-
-            if task.estimated_hours >= 4:
-                score += 2
-
-            elif task.estimated_hours >= 2:
-                score += 1
-
-        return score
-
-    # =====================================================
-    # GET WORKLOAD LEVEL
-    # =====================================================
-
-    def get_workload_level(self, score):
-
-        if score <= 5:
-            return "LOW"
-
-        elif score <= 10:
-            return "MODERATE"
-
-        else:
-            return "HIGH"
-
-    # =====================================================
-    # GET WORKLOAD MESSAGE
-    # =====================================================
-
-    def get_workload_message(self, level):
-
-        if level == "LOW":
-
-            return (
-                "Your workload is manageable. "
-                "Keep up your study routine."
-            )
-
-        elif level == "MODERATE":
-
-            return (
-                "Your workload is starting to increase. "
-                "Try planning your study time early."
-            )
-
-        else:
-
-            return (
-                "Your workload is HIGH. "
-                "Consider moving your lowest-priority "
-                "task to next week."
-            )
+        return {
+            "total_tasks": total,
+            "completed_tasks": completed,
+            "pending_tasks": pending,
+            "completion_percentage": completion_percentage,
+            "workload_level": workload_level,
+            "upcoming_tasks": upcoming_tasks,
+            "overdue_tasks": overdue_tasks,
+            "high_priority_pending": priority_counts["High"],
+            "tasks_by_priority": priority_counts,
+            "tasks_by_subject": subject_counts,
+        }
