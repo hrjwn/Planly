@@ -52,7 +52,7 @@ def render_login_view():
             with st.form(key="login_form", clear_on_submit=False):
                 email = st.text_input(
                     "Email Address",
-                    placeholder="student@planly.edu",
+                    placeholder="Enter your email address",
                     key="login_email",
                 )
                 password = st.text_input(
@@ -88,17 +88,17 @@ def render_login_view():
             with st.form(key="register_form", clear_on_submit=False):
                 name = st.text_input(
                     "Full Name",
-                    placeholder="e.g., Hariette Reyes",
+                    placeholder="Enter your name",
                     key="reg_name",
                 )
                 email = st.text_input(
                     "Email Address",
-                    placeholder="e.g., hariette@planly.edu",
+                    placeholder="e.g., student@gmail.com/student@school.edu",
                     key="reg_email",
                 )
                 course = st.text_input(
                     "Course / Degree Program",
-                    placeholder="e.g., BS Computer Science",
+                    placeholder="Enter your Course",
                     key="reg_course",
                 )
                 password = st.text_input(
