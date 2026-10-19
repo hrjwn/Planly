@@ -123,3 +123,4 @@ Works the same on Windows, macOS, and Linux.
 | `streamlit` command not found | Use `python -m streamlit run app.py` instead of `streamlit run`. |
 
 > Never commit `.streamlit/secrets.toml` or put real keys in `secrets.toml.example`.
+
